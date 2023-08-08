@@ -1,6 +1,7 @@
+import { withPageAuthRequired, getSession} from "@auth0/nextjs-auth0";
 import DeckForm from "@/components/DeckForm";
 
-const TestNewDeckPage2 = ({banana}) => {
+const TestNewDeckPage2 = ({user}) => {
 
     const deckForm = {
         name: ''
@@ -13,7 +14,7 @@ const TestNewDeckPage2 = ({banana}) => {
     
     
     <DeckForm formId="add-deck-form" deckForm={deckForm} />
-    {banana}
+   
   </div>
 
 </>
@@ -24,8 +25,19 @@ const TestNewDeckPage2 = ({banana}) => {
 
 export default TestNewDeckPage2
 
-export async function getServerSideProps(context) {
-    return {
-      props: {banana: 'banana'}, // will be passed to the page component as props
-    }
+// export async function getServerSideProps(context) {
+//     return {
+//       props: {banana: 'banana'}, // will be passed to the page component as props
+//     }
+//   }
+
+export const getServerSideProps = withPageAuthRequired({
+    getServerSideProps: async ({ params, req, res }) => {
+    const auth0User = await getSession(req, res);
+    const user = auth0User.user;
+    await dbConnect()
+     
+  
+    return { props: { user } }
   }
+})
