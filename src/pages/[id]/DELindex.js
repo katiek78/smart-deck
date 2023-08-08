@@ -1,7 +1,7 @@
 import { withPageAuthRequired, getSession} from "@auth0/nextjs-auth0";
 import dbConnect from "@/lib/dbConnect";
 import MemoSystem from "@/models/MemoSystem";
-import ImageSet from "@/models/ImageSet";
+import ImageSet from "@/models/Deck";
 import Link from "next/link";
 
 const SystemPage = ({user, imageSets, system}) => {

@@ -1,5 +1,5 @@
 import dbConnect from '../../../../lib/dbConnect'
-import ImageSet from '@/models/ImageSet'
+import Deck from '@/models/Deck'
 
 export default async function handler(req, res) {
   const {
@@ -13,12 +13,12 @@ export default async function handler(req, res) {
     case 'GET' /* Get imageSet by ID and return only relevant page */:
       try {
         //  console.log(currentPage)
-        const imageSet = await ImageSet.findOne({ _id: id }, { images: { $slice: [currentPage * 20, 20] } })
+        const deck = await Deck.findOne({ _id: id }, { items: { $slice: [currentPage * 20, 20] } })
         // console.log(imageSet)
-        if (!imageSet) {
+        if (!deck) {
           return res.status(400).json({ success: false })
         }
-        res.status(200).json({ success: true, data: imageSet })
+        res.status(200).json({ success: true, data: deck })
       } catch (error) {
         res.status(400).json({ success: false })
       }
@@ -33,15 +33,15 @@ export default async function handler(req, res) {
             filter: { _id: id },
             update: { $set: { name: req.body.name } }
           }
-        }, ...req.body.images.map(image => ({
+        }, ...req.body.items.map(item => ({
           updateOne: {
-            filter: { _id: id, "images._id": image._id },
-            update: { $set: { "images.$": image } }
+            filter: { _id: id, "items._id": item._id },
+            update: { $set: { "items.$": item } }
           }
         }))
       ];
 
-        const changes = await ImageSet.bulkWrite(updateOperations);
+        const changes = await Deck.bulkWrite(updateOperations);
 
 
         if (!changes) {
@@ -54,8 +54,5 @@ export default async function handler(req, res) {
       }
       break
 
-    default:
-      res.status(400).json({ success: false })
-      break
-  }
+    }
 }

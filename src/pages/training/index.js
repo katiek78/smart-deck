@@ -5,7 +5,7 @@ import { useRouter } from "next/router";
 import dbConnect from "@/lib/dbConnect";
 // import Journey from "@/models/Journey";
 // import MemoSystem from "@/models/MemoSystem";
-import ImageSet from "@/models/ImageSet";
+import Deck from "@/models/Deck";
 import TrafficLights from "@/components/TrafficLights";
 import ConfidenceLevel from "@/components/ConfidenceLevel";
 import QuickEditForm from "@/components/QuickEditForm";
@@ -13,28 +13,24 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCheck, faXmark, faEdit, faImage, faStar } from "@fortawesome/free-solid-svg-icons";
 import { faStar as faStarOutline }  from "@fortawesome/free-regular-svg-icons";
 import { confidenceLabels, getConfidenceLevel } from "@/utilities/confidenceLevel";
-import RedHeartsAndDiamonds from "@/components/RedHD";
 
 // import SiteUser from "@/models/SiteUser";
 
-const TrainingCenter = ({user, imageSet}) => {
+const TrainingCenter = ({user, deck}) => {
   const router = useRouter();
   const contentType = 'application/json'
 
   const [message, setMessage] = useState('');
-  const imageSetID = router.query.imageSet;
-  //const [updatableImageSet, setUpdatableImageSet] = useState(imageSet);
-  //const [imageSet, setImageSet] = useState({});
-  const [randImage, setRandImage] = useState({});
+  const deckID = router.query.deck;
+ const [randItem, setRandItem] = useState({});
   const [isStarred, setIsStarred] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  // const [isFrontSide, setIsFrontSide] = useState(true);
   const [isStarted, setIsStarted] = useState(false);
   const [isEditable, setIsEditable] = useState(false);
-  const [imageGroup, setImageGroup] = useState('all');
-  const [filteredData, setFilteredData] = useState(imageSet.images);
+  const [itemGroup, setItemGroup] = useState('all');
+  const [filteredData, setFilteredData] = useState(deck.items);
   const [needNewCard, setNeedNewCard] = useState(false);
-  const [field, setField] = useState('imageItem')
+  const [field, setField] = useState('answer')
   const [starredOnly, setStarredOnly] = useState(false);
   const [cardsAvailable, setCardsAvailable] = useState(false);
 // let filteredData = [];
@@ -48,16 +44,16 @@ const TrainingCenter = ({user, imageSet}) => {
     //console.log(filteredData.filter(el => el.imageItem.includes("nightshade"))); //correct
 
     //const filterData = () => {
-      let newSet = [...imageSet.images];      
-      if (imageGroup !== 'all') newSet = newSet.filter(image => getConfidenceLevel(image.recentAttempts) === parseInt(imageGroup));
-      if (starredOnly) newSet = newSet.filter(image => image.starred)
+      let newSet = [...deck.items];      
+      if (itemGroup !== 'all') newSet = newSet.filter(item => getConfidenceLevel(item.recentAttempts) === parseInt(itemGroup));
+      if (starredOnly) newSet = newSet.filter(item => item.starred)
       setFilteredData(newSet, starredOnly);
    // }
 
   //  filterData();
   
    if (filteredData.length) {
-    getImage();
+    getItem();
     toggleRotate(null, true);
     setIsEditable(false);
     setMessage('');
@@ -87,7 +83,7 @@ const TrainingCenter = ({user, imageSet}) => {
    // console.log("getting group totals - this means page has refreshed") //this happens when you change select, when you click Start, when you click submit, when you press correct
     let result = [];
     for (let i = 0; i < confidenceLabels.length; i++) {
-      const group = imageSet.images.filter(image => getConfidenceLevel(image.recentAttempts) === parseInt(i))
+      const group = deck.items.filter(item => getConfidenceLevel(item.recentAttempts) === parseInt(i))
       result.push(group.length);
     }
     return result;
@@ -95,81 +91,47 @@ const TrainingCenter = ({user, imageSet}) => {
 
   const groupTotals = getGroupTotals();
 
-  // const getImageSet = async (id) => {
-  //   //get image set from DB
-  //   const res = await fetch(`/api/imageSets/${id}`, {
-  //     method: 'GET',
-  //     headers: {
-  //       Accept: contentType,
-  //       'Content-Type': contentType,
-  //     },
-  //   })
-  //   const data = await res.json();
-  //   setImageSet(data.data);
-  // }
 
   function handleKeyDown(e) {
    e.stopPropagation();
-  //   //can't do preventDefault or it stops us typing
-  // console.log(e.target)
-  //   //console.log("just pressed a key and form.imageItem is " + form.imageItem) //if we've pressed return, this has somehow been reset to ''
-
-  //   if (document.getElementsByName('imageItem').length > 0) {
-  //     //console.log("special key down thing called")
-  //     if (e.keyCode === 13) handleSubmitEdit(e, formItem);
-  //   } else {
-    
+      
   if (e.keyCode === 39)  setNeedNewCard(true);
-  //     // if (e.keyCode === 13 || e.keyCode === 32) toggleRotate();
- // }
+  
 }
 
 
 
   const handleStartTraining = () => {
-    //get random image from set
-    // const randIndex = Math.floor(Math.random() * imageSet.images.length);
-    // setRandImage(imageSet.images[randIndex]);
-    
+    //get random item from set
+  
      document.addEventListener('keydown', handleKeyDown)
-    // getImage()
+   
     setNeedNewCard(true)
     setIsStarted(true)
 
   }
 
-  const handleNextImage = (e) => {
+  const handleNextItem = (e) => {
              e.preventDefault();
              e.target.blur();
              setNeedNewCard(true);
   }
 
 
-  const getImage = () => {
- //get random image from set
+  const getItem = () => {
+ //get random item from set
  
  const randIndex = Math.floor(Math.random() * filteredData.length);
- setRandImage(filteredData[randIndex]);
+ setRandItem(filteredData[randIndex]);
  setIsStarred(filteredData[randIndex].starred)
   }
 
-
-//   function handleKeyDownEdit(k) {
-//     console.log("special key down thing called")
-//    // k.stopPropagation();
-//     if (k.keyCode === 13) console.log("pressed return on input");
-// }
 
   const handleEdit = (e, field) => {
     //Now entering editable mode
     e.stopPropagation();
     setIsEditable(true);
     setField(field);
-
-   //document.addEventListener('keydown', handleKeyDown);
-  //  document.removeEventListener('keydown', handleKeyDown, true);
-  //  console.log("normal key down thing should be off now");
-  //  document.addEventListener('keydown', handleKeyDownEdit)
   }
 
   const handleCorrect = (e) => {
@@ -187,22 +149,22 @@ const TrainingCenter = ({user, imageSet}) => {
   const addToRecentAttempts = async (isCorrect) => {
     
     //create the property if it doesn't exist
-    if (!randImage.recentAttempts) randImage.recentAttempts = [];
+    if (!randItem.recentAttempts) randItem.recentAttempts = [];
 
     //cap at 7 attempts
-    if (randImage.recentAttempts.length === 7) randImage.recentAttempts.shift();
+    if (randItem.recentAttempts.length === 7) randItem.recentAttempts.shift();
 
-    randImage.recentAttempts.push(isCorrect ? 1 : 0);
+    randItem.recentAttempts.push(isCorrect ? 1 : 0);
 
     try {
 
-      const res = await fetch(`/api/imageSets/${imageSetID}`, {
+      const res = await fetch(`/api/decks/${deckID}`, {
         method: 'PUT',
         headers: {
           Accept: contentType,
           'Content-Type': contentType,
         },
-        body: JSON.stringify(randImage),
+        body: JSON.stringify(randItem),
       })
 
       // Throw error with status code in case Fetch API req failed
@@ -211,18 +173,13 @@ const TrainingCenter = ({user, imageSet}) => {
       }
       const { data } = await res.json()
 
-      //imageSet.images = updatedImages;
-
+ 
       const level = document.getElementById("selSet").value;   
-      setImageGroup(level)     //this makes sure the categories are updated, I think this works by causing a re-render which causes updating of groupTotals
+      setItemGroup(level)     //this makes sure the categories are updated, I think this works by causing a re-render which causes updating of groupTotals
 
     } catch (error) {
       setMessage(error + 'Failed to save training data')
     }
-
-    //   refreshData();
-    
-
 
   }
 
@@ -231,30 +188,32 @@ const TrainingCenter = ({user, imageSet}) => {
     e.preventDefault();
     setIsEditable(false);
    
-    if (field === 'imageItem') {
-    randImage.imageItem = item;
-    
+    if (field === 'question') {
+    randItem.question = item;
+  } else if (field === 'answer') {
+    randItem.answer = item
+ 
     } else if (field === 'URL') {
-      randImage.URL = item
+      randItem.URL = item
    
     } else {
      
-      if (randImage.starred === undefined) randImage.starred = false;
-      randImage.starred = !randImage.starred
-      setIsStarred(randImage.starred)
+      if (randItem.starred === undefined) randItem.starred = false;
+      randItem.starred = !randItem.starred
+      setIsStarred(randItem.starred)
      
     }
 
 
     try {
 
-      const res = await fetch(`/api/imageSets/${imageSetID}`, {
+      const res = await fetch(`/api/decks/${deckID}`, {
         method: 'PUT',
         headers: {
           Accept: contentType,
           'Content-Type': contentType,
         },
-        body: JSON.stringify(randImage),
+        body: JSON.stringify(randItem),
       })
 
       // Throw error with status code in case Fetch API req failed
@@ -275,26 +234,26 @@ const TrainingCenter = ({user, imageSet}) => {
 
   const handleChangeSelect = () => {
     const level = document.getElementById("selSet").value;      
-    setImageGroup(level)
+    setItemGroup(level)
     setNeedNewCard(true);    
   }
 
   const handleToggleStar = async (id) => {
     
-    if (randImage.starred === undefined) randImage.starred = false;
-    randImage.starred = !randImage.starred;
+    if (randItem.starred === undefined) randItem.starred = false;
+    randItem.starred = !randItem.starred;
 
-    setIsStarred(randImage.starred)
+    setIsStarred(randItem.starred)
 
     try {
 
-      const res = await fetch(`/api/imageSets/${imageSetID}`, {
+      const res = await fetch(`/api/decks/${deckID}`, {
         method: 'PUT',
         headers: {
           Accept: contentType,
           'Content-Type': contentType,
         },
-        body: JSON.stringify(randImage),
+        body: JSON.stringify(randItem),
       })
 
       // Throw error with status code in case Fetch API req failed
@@ -317,15 +276,15 @@ const handleToggleStarredDisplay = () => {
     <>
     <div className="z-10 justify-between font-mono text-lg max-w-5xl w-full ">
     <h1 className="py-2 font-mono text-4xl">Training Center</h1>
-    <p className="font-mono">Hello {user.nickname} - there are {imageSet.images.length} images in this set.</p>
+    <p className="font-mono">Hello {user.nickname} - there are {deck.items.length} items in this set.</p>
 
-    {imageSet && !isLoading &&
+    {deck && !isLoading &&
     <>
     <div className="flex flex-col justify-center items-center">
-    <div className="mt-10 font-mono text-3xl">{imageSet.name}</div>
+    <div className="mt-10 font-mono text-3xl">{deck.name}</div>
 
     <div>
-    <p>Which images do you want to train?</p>
+    <p>Which items do you want to train?</p>
 
     <select id="selSet" className="w-full rounded-md" onChange={handleChangeSelect}>
       <option value="all">All 🌍</option>
@@ -343,28 +302,28 @@ const handleToggleStarredDisplay = () => {
         <div class="z-3 relative m-2 h-40 w-60 lg:h-80 lg:w-96 rounded-xl shadow-xl"> 
           <div id="card-front" onClick={(e) => toggleRotate(e, false)}  className="card-flip absolute inset-0 rounded-xl border-4 border-slate-700 bg-white [backface-visibility:hidden]">
           <div class="flex-col rounded-xl px-12 bg-white text-center text-black absolute top-0 left-0 w-full h-full flex items-center justify-center">
-              <h1 class="text-3xl font-bold"><RedHeartsAndDiamonds text={randImage.name} /></h1>
+              <h1 class="text-3xl font-bold">{randItem.question}</h1>
             </div>
           </div>
           <div id="card-back" onClick={(e) => toggleRotate(e, false)}  className="card-flip absolute inset-0 h-full w-full  rounded-xl [transform:rotateY(180deg)] [backface-visibility:hidden]">
             <div class="flex-col rounded-xl bg-black/60 px-12  text-center text-slate-200 absolute top-0 left-0 w-full h-full flex items-center justify-center">
-              <h1 class="text-3xl font-bold">{isEditable ? <QuickEditForm formId="quick-edit-form" field={field} name={randImage.name} item={field === 'imageItem' ? randImage.imageItem : randImage.URL} handleSubmitEdit={handleSubmitEdit} /> : randImage.imageItem}</h1>
-              <h5 class="absolute top-24 lg:top-48 text-md">{randImage.phonetics}</h5>   
-              <h5><TrafficLights recentAttempts={randImage.recentAttempts} /></h5>
-              <ConfidenceLevel recentAttempts={randImage.recentAttempts} />
+              <h1 class="text-3xl font-bold">{isEditable ? <QuickEditForm formId="quick-edit-form" field={field} name={randItem.question} item={field === 'answer' ? randItem.answer : randItem.URL} handleSubmitEdit={handleSubmitEdit} /> : randItem.answer}</h1>
+             
+              <h5><TrafficLights recentAttempts={randItem.recentAttempts} /></h5>
+              <ConfidenceLevel recentAttempts={randItem.recentAttempts} />
 
             </div>
-            {randImage.starred ? <FontAwesomeIcon onClick={() => handleToggleStar(randImage._id)} className='absolute top-7 left-3 text-yellow-500' icon={faStar} />  : <FontAwesomeIcon onClick={() => handleToggleStar(randImage._id)} className='absolute top-7 left-3 text-white' icon={faStarOutline} /> }
+            {randItem.starred ? <FontAwesomeIcon onClick={() => handleToggleStar(randItem._id)} className='absolute top-7 left-3 text-yellow-500' icon={faStar} />  : <FontAwesomeIcon onClick={() => handleToggleStar(randItem._id)} className='absolute top-7 left-3 text-white' icon={faStarOutline} /> }
             {/* {isStarred ? <FontAwesomeIcon onClick={(e) => handleSubmitEdit(e, "starred", null)} className='absolute top-7 left-3 text-yellow-500' icon={faStar} />  : <FontAwesomeIcon onClick={(e) => handleSubmitEdit(e, "starred", null)} className='absolute top-7 left-3 text-white' icon={faStarOutline} /> } */}
-            {isEditable ? <></>: <><FontAwesomeIcon className='cursor-pointer absolute left-3/4 top-3/4 text-white h-6 lg:h-8' icon={faEdit} onClick={(e) => handleEdit(e, 'imageItem')} /><FontAwesomeIcon className='absolute cursor-pointer left-[87%] top-3/4 text-white h-6 lg:h-8' icon={faImage} onClick={(e) => handleEdit(e, 'URL')} /></>}
-            <img class="h-full w-full rounded-xl object-cover shadow-xl shadow-black/40" src={randImage.URL && randImage.URL.length > 0 ? randImage.URL : "https://images.unsplash.com/photo-1689910707971-05202a536ee7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHx0b3BpYy1mZWVkfDE0fDZzTVZqVExTa2VRfHxlbnwwfHx8fHw%3D&auto=format&fit=crop&w=500&q=60')"} alt="" />
+            {isEditable ? <></>: <><FontAwesomeIcon className='cursor-pointer absolute left-3/4 top-3/4 text-white h-6 lg:h-8' icon={faEdit} onClick={(e) => handleEdit(e, 'answer')} /><FontAwesomeIcon className='absolute cursor-pointer left-[87%] top-3/4 text-white h-6 lg:h-8' icon={faImage} onClick={(e) => handleEdit(e, 'URL')} /></>}
+            <img class="h-full w-full rounded-xl object-cover shadow-xl shadow-black/40" src={randItem.URL && randItem.URL.length > 0 ? randItem.URL : "https://media.istockphoto.com/id/1413965439/vector/irregular-background-monochrome.jpg?s=612x612&w=0&k=20&c=awzhQiuEZg-U8xL_l-wzRehEqSbfgAoyGnPogzn-zU8="} alt="" />
           </div>
         </div>
       </div>
       <div className={isEditable ? "invisible" : "flex flex-col items-center"}>
       <FontAwesomeIcon className='cursor-pointer h-10 w-40 btn bg-green-400 hover:bg-green-500 text-white font-bold mt-3 mx-0.5 py-1 px-4 rounded focus:outline-none focus:shadow-outline' onClick={handleCorrect} icon={faCheck} />
       <FontAwesomeIcon className='cursor-pointer h-10 w-40 btn bg-red-400 hover:bg-red-500 text-white font-bold mt-3 mx-0.5 py-1 px-4 rounded focus:outline-none focus:shadow-outline' onClick={handleIncorrect} icon={faXmark} />
-      <button onClick={(e) => handleNextImage(e)} className="w-40 btn bg-white text-black font-bold mt-3 mx-0.5 py-1 px-4 rounded focus:outline-none focus:shadow-outline">Next</button>
+      <button onClick={(e) => handleNextItem(e)} className="w-40 btn bg-white text-black font-bold mt-3 mx-0.5 py-1 px-4 rounded focus:outline-none focus:shadow-outline">Next</button>
       </div>
     </div>
     }
@@ -383,7 +342,7 @@ export default TrainingCenter;
 export const getServerSideProps = withPageAuthRequired({
     getServerSideProps: async (ctx) => {
       
-      const id = ctx.query.imageSet
+      const id = ctx.query.deck
       {/* const id = req.params.imageSet; */}
     const auth0User = await getSession(ctx.req, ctx.res);
     await dbConnect()
@@ -425,11 +384,11 @@ export const getServerSideProps = withPageAuthRequired({
 
 
   /* find this image set */
-  const result = await ImageSet.findOne({_id: id})
-  const imageSetToPass = JSON.parse(JSON.stringify(result))
+  const result = await Deck.findOne({_id: id})
+  const deckToPass = JSON.parse(JSON.stringify(result))
 
 
-  return { props: { user: user, imageSet: imageSetToPass} }
+  return { props: { user: user, deck: deckToPass} }
 
 }
 })

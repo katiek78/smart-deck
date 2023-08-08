@@ -1,5 +1,5 @@
 import dbConnect from '../../../lib/dbConnect'
-import System from '@/models/MemoSystem'
+import Deck from '@/models/Deck'
 
 export default async function handler(req, res) {
   const {
@@ -9,29 +9,37 @@ export default async function handler(req, res) {
 
   await dbConnect()
 
-  switch (method) {
+  switch (method) {    
     case 'GET' /* Get a model by its ID */:
       try {
-        const system = await System.findById(id)
-        if (!system) {
+        const deck = await Deck.findById(id)
+        if (!deck) {
           return res.status(400).json({ success: false })
         }
-        res.status(200).json({ success: true, data: system })
+        res.status(200).json({ success: true, data: deck })
       } catch (error) {
         res.status(400).json({ success: false })
       }
       break
 
     case 'PUT' /* Edit a model by its ID */:
+        console.log("updating one item")
+        console.log(req.body)
       try {
-        const system = await System.findByIdAndUpdate(id, req.body, {
-          new: true,
-          runValidators: true,
-        })
-        if (!system) {
+      
+        const updateOperation = {
+          updateOne: {
+            filter: { _id: id, "items._id": req.body._id },
+            update: { $set: { "items.$": req.body } }
+          }
+        };
+
+        const changes = await Deck.bulkWrite([updateOperation])
+
+        if (!changes) {
           return res.status(400).json({ success: false })
         }
-        res.status(200).json({ success: true, data: system })
+        res.status(200).json({ success: true, data: changes })
       } catch (error) {
         res.status(400).json({ success: false })
       }
@@ -39,8 +47,8 @@ export default async function handler(req, res) {
 
     case 'DELETE' /* Delete a model by its ID */:
       try {
-        const deletedSystem = await System.deleteOne({ _id: id })
-        if (!deletedSystem) {
+        const deletedDeck = await Deck.deleteOne({ _id: id })
+        if (!deletedDeck) {
           return res.status(400).json({ success: false })
         }
         res.status(200).json({ success: true, data: {} })

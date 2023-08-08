@@ -1,20 +1,20 @@
 import { withPageAuthRequired, getSession} from "@auth0/nextjs-auth0";
 import dbConnect from "@/lib/dbConnect";
-import ImageSetForm from "@/components/ImageSetForm";
+import DeckForm from "@/components/DeckForm";
 
-const NewImageSetPage = ({user}) => {
+const NewDeckPage = ({user}) => {
 
-    const imageSetForm = {
+    const deckForm = {
         name: ''
     }
 
     return(
  <>
     <div className="z-10 justify-between font-mono text-lg max-w-5xl w-full ">
-    <h1 className="py-2 font-mono text-4xl">New image set</h1>
+    <h1 className="py-2 font-mono text-4xl">New deck</h1>
     
     
-    <ImageSetForm formId="add-image-set-form" imageSetForm={imageSetForm} />
+    <DeckForm formId="add-deck-form" deckForm={deckForm} />
    
   </div>
 
@@ -24,7 +24,7 @@ const NewImageSetPage = ({user}) => {
 
 }
 
-export default NewImageSetPage
+export default NewDeckPage
 
 export const getServerSideProps = withPageAuthRequired({
     getServerSideProps: async ({ params, req, res }) => {

@@ -1,5 +1,5 @@
 import dbConnect from '../../../../lib/dbConnect'
-import ImageSet from '@/models/ImageSet'
+import ImageSet from '@/models/Deck'
 
 export default async function handler(req, res) {
   const {

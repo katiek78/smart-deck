@@ -1,7 +1,7 @@
 
 import { withPageAuthRequired, getSession} from "@auth0/nextjs-auth0";
 import dbConnect from "@/lib/dbConnect";
-import ImageSet from "@/models/ImageSet";
+import Deck from "@/models/Deck";
 import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
@@ -9,26 +9,24 @@ import { refreshData } from "@/lib/refreshData";
 import { useState } from "react";
 import { useRouter } from "next/router";
 
-const ImageSetsPage = ({user, imageSets}) => {
+const DecksPage = ({user, decks}) => {
   //let user = useUser(); //should we be using this instead?
     
     const [message, setMessage] = useState('')
     const router = useRouter();
     
     const handleDelete = async (id) => {
-        const confirmed = window.confirm('Are you sure you want to delete this set?');
+        const confirmed = window.confirm('Are you sure you want to delete this deck?');
         if (confirmed) {
-            //remove it from our word set so it disappears from the view 
-            //setFilterData(filterData.filter(word => word._id !== id));
-
+          
             //remove it from the database
             try {
-                await fetch(`/api/imageSets/${id}`, {
+                await fetch(`/api/decks/${id}`, {
                 method: 'Delete',
                 })
                 refreshData(router);
             } catch (error) {
-                setMessage('Failed to delete the set.')
+                setMessage('Failed to delete the deck.')
             }
         }
     }
@@ -36,12 +34,12 @@ const ImageSetsPage = ({user, imageSets}) => {
   return(
     <>
     <div className="z-10 justify-between font-mono text-lg max-w-5xl w-full ">
-    <h1 className="py-2 font-mono text-4xl">My image sets</h1>
-    <p className="font-mono">Hi {user.nickname} - there {imageSets.length === 1 ? 'is' : 'are'} {imageSets.length} image {imageSets.length === 1 ? 'set' : 'sets'} in the database.</p>
-    {imageSets.length > 0 && imageSets.map(imageSet => <p className="font-semibold"> <Link href="/imageSets/[id]/" as={`/imageSets/${imageSet._id}/`} legacyBehavior>{imageSet.name}</Link> 
-    <FontAwesomeIcon className="ml-5 cursor-pointer" onClick={() => handleDelete(imageSet._id)} icon={faTrash} size="1x" /></p>)}
-    <Link href="/newImageSet"><button className="btn bg-black hover:bg-gray-700 text-white font-bold mt-3 py-1 px-4 rounded focus:outline-none focus:shadow-outline">
-          Add new image set
+    <h1 className="py-2 font-mono text-4xl">My decks</h1>
+    <p className="font-mono">Hi {user.nickname} - you have {decks.length} {decks.length === 1 ? 'deck' : 'decks'}.</p>
+    {decks.length > 0 && decks.map(deck => <p className="font-semibold"> <Link href="/decks/[id]/" as={`/decks/${deck._id}/`} legacyBehavior>{deck.name}</Link> 
+    <FontAwesomeIcon className="ml-5 cursor-pointer" onClick={() => handleDelete(deck._id)} icon={faTrash} size="1x" /></p>)}
+    <Link href="/newDeck"><button className="btn bg-black hover:bg-gray-700 text-white font-bold mt-3 py-1 px-4 rounded focus:outline-none focus:shadow-outline">
+          Add new deck
         </button></Link>
   </div>
     <div>{message}</div>
@@ -49,7 +47,7 @@ const ImageSetsPage = ({user, imageSets}) => {
   )
 }
 
-export default ImageSetsPage;
+export default DecksPage;
 
 export const getServerSideProps = withPageAuthRequired({
     getServerSideProps: async ({ req, res }) => {
@@ -77,11 +75,11 @@ export const getServerSideProps = withPageAuthRequired({
 //     return journey
 //   })
 
-  const result2 = await ImageSet.find({}, { name: 1})
-  const imageSets = result2.map((doc) => {   
-    const imageSet = JSON.parse(JSON.stringify(doc));
-    imageSet._id = imageSet._id.toString()
-    return imageSet
+  const result2 = await Deck.find({}, { name: 1})
+  const decks = result2.map((doc) => {   
+    const deck = JSON.parse(JSON.stringify(doc));
+    deck._id = deck._id.toString()
+    return deck
   })
 
   // let user = await db.user.findUnique({ where: { email: auth0User?.user.email } });
@@ -94,7 +92,7 @@ export const getServerSideProps = withPageAuthRequired({
         user: (auth0User).user,
         // user: user,  //EVENTUALLY THIS
        
-        imageSets: imageSets
+        decks: decks
       },
     };
   },

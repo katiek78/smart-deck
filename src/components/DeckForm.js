@@ -2,14 +2,14 @@ import { useState } from 'react'
 import { useRouter } from 'next/router'
 import { mutate } from 'swr'
 
-const SystemForm = ({ formId, systemForm, forNewSystem = true }) => {
+const DeckForm = ({ formId, deckForm, forNewDeck = true }) => {
   const router = useRouter()
   const contentType = 'application/json'
   const [errors, setErrors] = useState({})
   const [message, setMessage] = useState('')
 
   const [form, setForm] = useState({
-    name: systemForm.name,
+    name: deckForm.name,
     // meaning: wordForm.meaning,
     // wordType: wordForm.wordType
   })
@@ -19,7 +19,7 @@ const SystemForm = ({ formId, systemForm, forNewSystem = true }) => {
     const { id } = router.query
 
     try {
-      const res = await fetch(`/api/systems/${id}`, {
+      const res = await fetch(`/api/decks/${id}`, {
         method: 'PUT',
         headers: {
           Accept: contentType,
@@ -35,17 +35,17 @@ const SystemForm = ({ formId, systemForm, forNewSystem = true }) => {
 
       const { data } = await res.json()
 
-      mutate(`/api/systems/${id}`, data, false) // Update the local data without a revalidation
-      router.push({pathname: '/'})
+      mutate(`/api/decks/${id}`, data, false) // Update the local data without a revalidation
+      router.push({pathname: '/decks'})
     } catch (error) {
-      setMessage('Failed to update system')
+      setMessage('Failed to update deck')
     }
   }
 
   /* The POST method adds a new entry in the mongodb database. */
   const postData = async (form) => {
     try {
-      const res = await fetch('/api/systems', {
+      const res = await fetch('/api/decks', {
         method: 'POST',
         headers: {
           Accept: contentType,
@@ -59,9 +59,9 @@ const SystemForm = ({ formId, systemForm, forNewSystem = true }) => {
         throw new Error(res.status)
       }
 
-      router.push('/')
+      router.push('/decks')
     } catch (error) {
-      setMessage('Failed to add system')
+      setMessage('Failed to add deck')
     }
   }
 
@@ -76,7 +76,7 @@ const SystemForm = ({ formId, systemForm, forNewSystem = true }) => {
     })
   }
 
-  /* Makes sure system info is filled */
+  /* Makes sure deck info is filled */
   const formValidate = () => {
     let err = {}
     if (!form.name) err.name = 'Name is required'
@@ -89,7 +89,7 @@ const SystemForm = ({ formId, systemForm, forNewSystem = true }) => {
     
     const errs = formValidate()
     if (Object.keys(errs).length === 0) {
-      forNewSystem ? postData(form) : putData(form)
+      forNewDeck ? postData(form) : putData(form)
     } else {
       setErrors({ errs })
     }
@@ -147,4 +147,4 @@ const SystemForm = ({ formId, systemForm, forNewSystem = true }) => {
   )
 }
 
-export default SystemForm
+export default DeckForm
