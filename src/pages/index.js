@@ -22,7 +22,9 @@ export default function Index() {
         {/* <a href="/api/auth/logout">Logout</a> */}
         </p>
        
-      
+      <p>Create a flashcard deck and enter Training mode to practise your cards! 
+        The handy traffic light system will show you whether your last 7 attempts were right or wrong. 
+        Each card also has a coloured bar at the top to indicate how well you know it.</p>
        
 
       
