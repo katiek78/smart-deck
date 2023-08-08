@@ -1,5 +1,7 @@
 
-import dbConnect from "@/lib/dbConnect";
+#
+'use client'
+//import dbConnect from "@/lib/dbConnect";
 import DeckForm from "@/components/DeckForm";
 
 const TestNewDeckPage = ({banana}) => {
@@ -29,7 +31,7 @@ export default TestNewDeckPage
 export const getServerSideProps = async () => {
     getServerSideProps: async ({ params, req, res }) => {
    
-    await dbConnect()
+   // await dbConnect()
      
   
     return { props: {banana: 'banana value'} }
