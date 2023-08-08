@@ -1,6 +1,6 @@
 import DeckForm from "@/components/DeckForm";
 
-const TestNewDeckPage2 = () => {
+const TestNewDeckPage2 = ({banana}) => {
 
     const deckForm = {
         name: ''
@@ -13,7 +13,7 @@ const TestNewDeckPage2 = () => {
     
     
     <DeckForm formId="add-deck-form" deckForm={deckForm} />
-   
+    {banana}
   </div>
 
 </>
@@ -23,3 +23,9 @@ const TestNewDeckPage2 = () => {
 }
 
 export default TestNewDeckPage2
+
+export async function getServerSideProps(context) {
+    return {
+      props: {banana: 'banana'}, // will be passed to the page component as props
+    }
+  }
