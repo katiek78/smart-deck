@@ -27,7 +27,7 @@ export default function Index() {
         Each card also has a coloured bar at the top to indicate how well you know it.</p>
        
 
-      
+<p>Test</p>      
 
       </div>
      
